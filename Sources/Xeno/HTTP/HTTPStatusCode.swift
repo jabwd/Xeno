@@ -75,4 +75,23 @@ public enum HTTPStatusCode: UInt {
 	case networkConnectTimeoutError = 599
 	
 	case unknown = 0
+	
+	var reason: String {
+		switch(self) {
+		case .ok:
+			return "OK"
+		case .forbidden:
+			return "Forbidden"
+		case .notFound:
+			return "Not Found"
+		case .created:
+			return "Created"
+		case .accepted:
+			return "Accepted"
+		case .internalServerError:
+			return "Internal Server Error"
+		default:
+			return "Unknown"
+		}
+	}
 }

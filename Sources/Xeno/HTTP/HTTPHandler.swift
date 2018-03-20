@@ -26,15 +26,25 @@ internal class HTTPHandler: ChannelInboundHandler {
     func channelRead(ctx: ChannelHandlerContext, data: NIOAny) {
         var dataBuffer = unwrapInboundIn(data)
         let data = dataBuffer.readBytes(length: dataBuffer.readableBytes)
-        let str = String(bytes: data!, encoding: .utf8)
-        print("str \(str)")
-        
-        var byteBuffer = ctx.channel.allocator.buffer(capacity: 512)
-        byteBuffer.write(string: "HTTP/1.1 200 OK\r\nServer: Exurion (unix)\r\nConnection: closed\r\n\r\nHello world")
-        ctx.writeAndFlush(NIOAny(byteBuffer)).whenComplete {
-            ctx.close(promise: nil)
-        }
+        let str = String(bytes: data!, encoding: .utf8) ?? ""
+		guard let req = HTTPRequest(request: str) else {
+			let response = HTTPResponse(status: .internalServerError, headers: [:], body: "")
+			send(response: response, ctx: ctx)
+			return
+		}
+		
+		let response = HTTPResponse(status: .ok, headers: [:], body: "<html><body><h1>Xeno</h1></body></html>")
+		send(response: response, ctx: ctx)
     }
+	
+	func send(response: HTTPResponse, ctx: ChannelHandlerContext) {
+		let raw = response.generated
+		var byteBuffer = ctx.channel.allocator.buffer(capacity: raw.count)
+		byteBuffer.write(string: raw)
+		ctx.writeAndFlush(NIOAny(byteBuffer)).whenComplete {
+			ctx.close(promise: nil)
+		}
+	}
     
     func channelWritabilityChanged(ctx: ChannelHandlerContext) {
         print("Writability changed!")
