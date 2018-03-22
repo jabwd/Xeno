@@ -5,12 +5,16 @@
 //  Created by Antwan van Houdt on 19/03/2018.
 //
 
-struct HTTPRequest: CustomStringConvertible {
+public struct HTTPRequest: CustomStringConvertible {
 	
 	let method: HTTPMethod
     let path: String
     let headers: [String: String]
 	let body: String
+    
+    var host: String {
+        return headers["host"] ?? ""
+    }
     
     init?(request: String) {
         var requestParts = request.split(separator: "\r\n")
@@ -60,7 +64,7 @@ struct HTTPRequest: CustomStringConvertible {
 				continue
 			}
 			let value = String(headerComponents[1])
-			headers[String(headerComponents[0])] = value.filter {
+			headers[String(headerComponents[0]).lowercased()] = value.filter {
 				if( $0 == " " ) {
 					return false
 				}
@@ -70,7 +74,7 @@ struct HTTPRequest: CustomStringConvertible {
 		return (body, headers)
 	}
 	
-	var description: String {
+	public var description: String {
 		return """
 				[HTTPRequest start]
 					Method:  \(method)

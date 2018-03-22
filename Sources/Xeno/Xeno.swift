@@ -14,13 +14,18 @@ public final class Xeno {
     
     private let group: EventLoopGroup
     private let server: ServerBootstrap
+    private let config: Config
+    public let router: HTTPRouter
     
-    init(host: String, port: Int) {
-        self.host = host
-        self.port = port
+    init(host: String, port: Int, config: Config) {
+        self.host   = host
+        self.port   = port
+        self.config = config
+        self.router = HTTPRouter()
         
         self.group = MultiThreadedEventLoopGroup(numThreads: System.coreCount)
         let handler = HTTPHandler()
+        handler.router = router
         self.server = ServerBootstrap(group: group)
             .serverChannelOption(ChannelOptions.backlog, value: 256)
             .serverChannelOption(ChannelOptions.socket(SocketOptionLevel(SOL_SOCKET), SO_REUSEADDR), value: 1)
@@ -38,7 +43,7 @@ public final class Xeno {
     // MARK: -
     
     public func run() throws {
-        let channel = try server.bind(host: host, port: port).wait()
+        let channel = try server.bind(host: host, port: config.defaultPort).wait()
         try channel.closeFuture.wait()
     }
 }
