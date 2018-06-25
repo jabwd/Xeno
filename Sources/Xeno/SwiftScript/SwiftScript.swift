@@ -3,7 +3,6 @@
 import Glibc
 #else
 import Darwin
-#endif
 import Foundation
 
 class SwiftScript {
@@ -80,3 +79,4 @@ class SwiftScript {
         fileActions.deallocate()
     }
 }
+#endif
